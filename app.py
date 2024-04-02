@@ -39,7 +39,7 @@ async def bot_start(message: types.Message):
     await message.answer(
         f"Assalamu alaykum, {message.from_user.full_name}!\n\nMARS ITSchoolning sales botiga xush kelibsiz!\nTillardan birini tanlang\n\nДобро пожаловать в sales bot от Mars IT School!\nВыберите один из языков:",
         reply_markup=langs)
-    
+
     
 @dp.message_handler(CommandStart(), state="*")  # Har qanday state'da ishlaydi
 async def bot_restart(message: types.Message, state: FSMContext):
@@ -120,7 +120,7 @@ async def us_fullname_state(message: types.Message, state=FSMContext):
         await message.answer(f"Telefon raqam: {phone}\n\nIsm familiya: {full_name}\n\nYosh: {age}")
 
         await message.answer_photo(
-            photo="AgACAgIAAxkBAAIIIGYFEeXP2H0XOmOusUutrf0DQptxAAI71TEbfGQpSBomsz22M-_jAQADAgADcwADNAQ",
+            photo="AgACAgIAAxkBAAIBaGYL81IeEHYod-0trHvlY0eeeV9JAAJF2zEbwp1gSF2lTOActrf1AQADAgADcwADNAQ",
             caption="Farzandingiz  qaysi yo’nalishda qobiliyati kuchli ekanligini bilishni xohlaysizmi?🤔\n\n",
             reply_markup=start_test_uz)
 
@@ -191,7 +191,7 @@ Natijalaringiz asosida quyidagi kurslar siz uchun eng mos keladi:\n\n"""
 
         # Natijalarni foydalanuvchiga yuborish
         await message.answer_photo(
-            photo="AgACAgIAAxkBAAIIImYFEpV7blhrRZg1PYGkjVMn-ajaAAI91TEbfGQpSCTfeMCLWVVBAQADAgADcwADNAQ",
+            photo="AgACAgIAAxkBAAIBamYL8-MkkRjuMJjOYn1GqWd141TfAAJG2zEbwp1gSIVdQ1pU3z7sAQADAgADcwADNAQ",
             caption=results_message, reply_markup=application)
         
         user_data = await state.get_data()
@@ -340,7 +340,7 @@ async def us_fullname_state(message: types.Message, state=FSMContext):
         await message.answer(f"Номер телефона: {phone}\n\nИмя и Фамилия: {full_name}\n\nВозраст: {age}")
 
         await message.answer_photo(
-            photo="AgACAgIAAxkBAAIIIGYFEeXP2H0XOmOusUutrf0DQptxAAI71TEbfGQpSBomsz22M-_jAQADAgADcwADNAQ",
+            photo="AgACAgIAAxkBAAIBaGYL81IeEHYod-0trHvlY0eeeV9JAAJF2zEbwp1gSF2lTOActrf1AQADAgADcwADNAQ",
             caption="Хотите узнать в какой сфере IT у вашего ребенка есть предрасположенности?🤔\n\n",
             reply_markup=start_test_ru)
 
@@ -409,7 +409,7 @@ async def send_question_ru(message: types.Message, state: FSMContext, answers: l
 
         # Natijalarni foydalanuvchiga yuborish
         await message.answer_photo(
-            photo="AgACAgIAAxkBAAIIImYFEpV7blhrRZg1PYGkjVMn-ajaAAI91TEbfGQpSCTfeMCLWVVBAQADAgADcwADNAQ",
+            photo="AgACAgIAAxkBAAIBamYL8-MkkRjuMJjOYn1GqWd141TfAAJG2zEbwp1gSIVdQ1pU3z7sAQADAgADcwADNAQ",
             caption=results_message, reply_markup=application_ru)
         
         user_data = await state.get_data()

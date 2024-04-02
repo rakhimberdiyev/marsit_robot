@@ -9,7 +9,7 @@ from aiogram.utils.exceptions import MessageToDeleteNotFound
 from aiogram.utils.executor import start_webhook
 from aiogram import Bot, Dispatcher, types
 
-from keyboards.default.all_defaults import phone_uz
+from keyboards.default.all_defaults import phone_uz, phone_ru
 from keyboards.inline.all_inlines import start_test_ru, contact, application, start_test_uz, langs, application_ru, \
     contact_ru, filials_ru, filials
 from keyboards.tests import test_ru, test_uz
@@ -96,7 +96,8 @@ async def us_fullname_state(message: types.Message, state=FSMContext):
         age = int(message.text)
 
         await state.update_data(
-            {'age': age
+            {'age': age,
+             'username': message.from_user.username,
             }
         )
         await save_message_id(state, message)
@@ -114,6 +115,7 @@ async def us_fullname_state(message: types.Message, state=FSMContext):
                 await dp.bot.delete_message(message.from_user.id, message_id)
             except Exception as e:
                 print(f"Xabarni o'chirishda xato: {e}")
+        
         await message.answer("Ro’yxatdan o’tganingiz uchun raxmat! 😊")
         await message.answer(f"Telefon raqam: {phone}\n\nIsm familiya: {full_name}\n\nYosh: {age}")
 
@@ -191,6 +193,21 @@ Natijalaringiz asosida quyidagi kurslar siz uchun eng mos keladi:\n\n"""
         await message.answer_photo(
             photo="AgACAgIAAxkBAAIIImYFEpV7blhrRZg1PYGkjVMn-ajaAAI91TEbfGQpSCTfeMCLWVVBAQADAgADcwADNAQ",
             caption=results_message, reply_markup=application)
+        
+        user_data = await state.get_data()
+        phone = user_data.get('phone')
+        full_name = user_data.get('full_name')
+        age = user_data.get('age')
+        result = user_data.get('result')
+        username = user_data.get('username')
+        date = datetime.datetime.now()
+
+        await state.reset_state(with_data=False)
+
+        user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\n\nSinov darsiga yozilmadi"
+
+        await on_startup_notify(dp, user)
+
 
 
 @dp.callback_query_handler(text_contains='answer_', state=TestState.waiting_for_answer)
@@ -255,11 +272,11 @@ async def contact_state_handler(call: types.CallbackQuery):
 #######################################################################################################
 
 
-async def save_message_id(state: FSMContext, message: types.Message):
-    async with state.proxy() as data:
-        if 'message_ids' not in data:
-            data['message_ids'] = []
-        data['message_ids'].append(message.message_id)
+# async def save_message_id(state: FSMContext, message: types.Message):
+#     async with state.proxy() as data:
+#         if 'message_ids' not in data:
+#             data['message_ids'] = []
+#         data['message_ids'].append(message.message_id)
 
 
 @dp.callback_query_handler(text='ru', state=None)
@@ -302,7 +319,7 @@ async def us_fullname_state(message: types.Message, state=FSMContext):
         age = int(message.text)
 
         data = await state.update_data(
-            {'age': age}
+            {'age': age, 'username': message.from_user.username}
         )
         await save_message_id(state, message)
 
@@ -357,7 +374,6 @@ async def send_question_ru(message: types.Message, state: FSMContext, answers: l
 
         await message.answer(f"Вопрос {current_question_index + 1} \n\n{question}\n\n", reply_markup=markup_ru)
     else:
-        await state.reset_state(with_data=False)
         categories = {'Dizayn': 0, 'Frontend': 0, 'Backend': 0, 'Fullstack': 0}
         for answer in answers:
             for value in answer.values():
@@ -395,6 +411,20 @@ async def send_question_ru(message: types.Message, state: FSMContext, answers: l
         await message.answer_photo(
             photo="AgACAgIAAxkBAAIIImYFEpV7blhrRZg1PYGkjVMn-ajaAAI91TEbfGQpSCTfeMCLWVVBAQADAgADcwADNAQ",
             caption=results_message, reply_markup=application_ru)
+        
+        user_data = await state.get_data()
+        phone = user_data.get('phone')
+        full_name = user_data.get('full_name')
+        age = user_data.get('age')
+        result = user_data.get('result')
+        username = user_data.get('username')
+        date = datetime.datetime.now()
+
+        await state.reset_state(with_data=False)
+
+        user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\n\nSinov darsiga yozilmadi"
+
+        await on_startup_notify(dp, user)
 
 
 @dp.callback_query_handler(text_contains='answer_', state=TestStateRu.waiting_for_answer)
@@ -467,3 +497,4 @@ if __name__ == "__main__":
         host='0.0.0.0',
         port=8080
     )
+

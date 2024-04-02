@@ -39,6 +39,13 @@ async def bot_start(message: types.Message):
     await message.answer(
         f"Assalamu alaykum, {message.from_user.full_name}!\n\nMARS ITSchoolning sales botiga xush kelibsiz!\nTillardan birini tanlang\n\nДобро пожаловать в sales bot от Mars IT School!\nВыберите один из языков:",
         reply_markup=langs)
+    
+    
+@dp.message_handler(CommandStart(), state="*")  # Har qanday state'da ishlaydi
+async def bot_restart(message: types.Message, state: FSMContext):
+    await state.finish()  # Joriy state'dagi barcha ma'lumotlarni tozalash
+    await message.answer("Bot qayta ishga tushirildi.")
+    await bot_start(message)
 
 
 async def save_message_id(state: FSMContext, message: types.Message):

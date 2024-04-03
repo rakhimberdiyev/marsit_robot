@@ -64,9 +64,12 @@ async def uz_state_handler(call: types.CallbackQuery, state: FSMContext):
     await RegState.phone.set()
 
 
-@dp.message_handler(content_types=types.ContentType.CONTACT, state=RegState.phone)
+@dp.message_handler(content_types=['contact', 'text'], state=RegState.phone)
 async def uz_phone_state(message: types.Message, state=FSMContext):
-    phone = message.contact.phone_number
+    if message.content_type == 'contact':
+        phone = message.contact.phone_number
+    elif message.content_type == 'text':
+        phone = message.text
 
     await state.update_data(
         {'phone': phone}
@@ -204,7 +207,7 @@ Natijalaringiz asosida quyidagi kurslar siz uchun eng mos keladi:\n\n"""
 
         await state.reset_state(with_data=False)
 
-        user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\n\nSinov darsiga yozilmadi"
+        user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\nTil: uz\n\nSinov darsiga yozilmadi"
 
         await on_startup_notify(dp, user)
 
@@ -249,7 +252,7 @@ async def application_handler(call: types.CallbackQuery, state: FSMContext):
     username = call.from_user.username
     date = datetime.datetime.now()
 
-    user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nFilial: {filial}\nDate: {date}"
+    user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nFilial: {filial}\nDate: {date}\nTil: uz"
 
     await call.message.delete()
     await call.message.answer("Arizangiz qabul qilindi ✅ \n\nBiz tez orada sizga aloqaga chiqamiz📞",
@@ -287,9 +290,12 @@ async def uz_state_handler(call: types.CallbackQuery, state: FSMContext):
     await RegStateRu.phone.set()
 
 
-@dp.message_handler(content_types=types.ContentType.CONTACT, state=RegStateRu.phone)
-async def uz_phone_state(message: types.Message, state=FSMContext):
-    phone = message.contact.phone_number
+@dp.message_handler(content_types=['contact', 'text'], state=RegStateRu.phone)
+async def ru_phone_state(message: types.Message, state=FSMContext):
+    if message.content_type == 'contact':
+        phone = message.contact.phone_number
+    elif message.content_type == 'text':
+        phone = message.text
 
     await state.update_data(
         {'phone': phone}
@@ -422,7 +428,7 @@ async def send_question_ru(message: types.Message, state: FSMContext, answers: l
 
         await state.reset_state(with_data=False)
 
-        user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\n\nSinov darsiga yozilmadi"
+        user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\nTil: ru\n\nSinov darsiga yozilmadi"
 
         await on_startup_notify(dp, user)
 
@@ -466,7 +472,7 @@ async def application_handler(call: types.CallbackQuery, state: FSMContext):
     username = call.from_user.username
     date = datetime.datetime.now()
 
-    user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nFilial: {filial}\nDate: {date}"
+    user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nFilial: {filial}\nDate: {date}\nTil: ru"
 
     await call.message.delete()
     await call.message.answer("Ваша заявка принята ✅ \n\nВ скором времени с вами свяжутся 📞", reply_markup=contact_ru)

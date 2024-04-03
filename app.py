@@ -27,7 +27,7 @@ dp = Dispatcher(bot, storage=storage)
 async def on_startup(dispatcher):
     await bot.set_webhook(WEBHOOK_URI)
     await set_default_commands(dispatcher)
-    await on_startup_notify(dispatcher, user=None)
+    await on_startup_notify(dispatcher, user=None, id=1234567)
 
 
 async def on_shutdown(_):
@@ -209,7 +209,7 @@ Natijalaringiz asosida quyidagi kurslar siz uchun eng mos keladi:\n\n"""
 
         user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\nTil: uz\n\nSinov darsiga yozilmadi"
 
-        await on_startup_notify(dp, user)
+        await on_startup_notify(dp, user, id)
 
 
 
@@ -258,7 +258,7 @@ async def application_handler(call: types.CallbackQuery, state: FSMContext):
     await call.message.answer("Arizangiz qabul qilindi ✅ \n\nBiz tez orada sizga aloqaga chiqamiz📞",
                             reply_markup=contact)
     await state.finish()
-    await on_startup_notify(dp, user)
+    await on_startup_notify(dp, user, call.from_user.id)
 
 
 @dp.callback_query_handler(text='contact')
@@ -430,7 +430,7 @@ async def send_question_ru(message: types.Message, state: FSMContext, answers: l
 
         user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\nTil: ru\n\nSinov darsiga yozilmadi"
 
-        await on_startup_notify(dp, user)
+        await on_startup_notify(dp, user, id)
 
 
 @dp.callback_query_handler(text_contains='answer_', state=TestStateRu.waiting_for_answer)
@@ -477,7 +477,7 @@ async def application_handler(call: types.CallbackQuery, state: FSMContext):
     await call.message.delete()
     await call.message.answer("Ваша заявка принята ✅ \n\nВ скором времени с вами свяжутся 📞", reply_markup=contact_ru)
     await state.finish()
-    await on_startup_notify(dp, user)
+    await on_startup_notify(dp, user, call.from_user.id)
 
 
 @dp.callback_query_handler(text='contact_ru')

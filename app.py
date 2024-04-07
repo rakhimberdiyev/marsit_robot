@@ -1,6 +1,6 @@
 import datetime
 import random
-
+import logging
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import CommandStart
@@ -13,8 +13,9 @@ from keyboards.default.all_defaults import phone_uz, phone_ru
 from keyboards.inline.all_inlines import start_test_ru, contact, application, start_test_uz, langs, application_ru, \
     contact_ru, filials_ru, filials
 from keyboards.tests import test_ru, test_uz
-from states.all_states import TestStateRu, RegStateRu, ApplicationState, TestState, RegState, ApplicationStateRu
-from data.config import BOT_TOKEN, WEBHOOK_PATH, WEBHOOK_URI
+from states.all_states import TestStateRu, RegStateRu, ApplicationState, TestState, RegState, ApplicationStateRu, \
+    UserState
+from data.config import BOT_TOKEN, WEBHOOK_PATH, WEBHOOK_URI, ADMINS
 
 from utils.notify_admins import on_startup_notify, on_shutdown_notify
 from utils.set_bot_commands import set_default_commands
@@ -22,25 +23,55 @@ from utils.set_bot_commands import set_default_commands
 bot = Bot(token=BOT_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
-
+logging.basicConfig(level=logging.INFO)
 
 async def on_startup(dispatcher):
     await bot.set_webhook(WEBHOOK_URI)
     await set_default_commands(dispatcher)
-    await on_startup_notify(dispatcher, user=None)
+    await on_startup_notify(dispatcher, user=None, id=123456)
 
 
 async def on_shutdown(_):
     await on_shutdown_notify(bot)
 
+@dp.message_handler(commands=['chatidshah'])
+async def get_chat_id(message: types.Message):
+    text = "This is a message to the topic chat!"
+    try:
+        await bot.send_message(chat_id="-1002088539701", text=text, parse_mode=None, message_thread_id=9)
+        await message.answer("salom chatid")
+    except Exception as e:
+        print(e)
+        
 
+@dp.message_handler(commands=['chatidvil'])
+async def get_chat_id(message: types.Message):
+    text = "This is a message to the topic chat!"
+    try:
+        await bot.send_message(chat_id="-1002088539701", text=text, parse_mode=None, message_thread_id=6)
+        await message.answer("salom chatid")
+    except Exception as e:
+        print(e)
+        
+        
+@dp.message_handler(commands=['chatidbosh'])
+async def get_chat_id(message: types.Message):
+    text = "This is a message to the topic chat!"
+    try:
+        await bot.send_message(chat_id="-1002088539701", text=text, parse_mode=None, message_thread_id=8)
+        await message.answer("salom chatid")
+    except Exception as e:
+        print(e)
+
+
+    
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
     await message.answer(
         f"Assalamu alaykum, {message.from_user.full_name}!\n\nMARS ITSchoolning sales botiga xush kelibsiz!\nTillardan birini tanlang\n\nДобро пожаловать в sales bot от Mars IT School!\nВыберите один из языков:",
         reply_markup=langs)
 
-    
+
 @dp.message_handler(CommandStart(), state="*")  # Har qanday state'da ishlaydi
 async def bot_restart(message: types.Message, state: FSMContext):
     await state.finish()  # Joriy state'dagi barcha ma'lumotlarni tozalash
@@ -59,15 +90,17 @@ async def save_message_id(state: FSMContext, message: types.Message):
 async def uz_state_handler(call: types.CallbackQuery, state: FSMContext):
     await call.message.delete()
     reply = await call.message.answer("Testni boshlash uchun iltimos, telefon raqamingizni kiriting📱\n\n",
-                                    reply_markup=phone_uz)
+                                      reply_markup=phone_uz)
     await save_message_id(state, reply)
     await RegState.phone.set()
 
 
-@dp.message_handler(content_types=types.ContentType.CONTACT, state=RegState.phone)
+@dp.message_handler(content_types=['contact', 'text'], state=RegState.phone)
 async def uz_phone_state(message: types.Message, state=FSMContext):
-    phone = message.contact.phone_number
-
+    if message.content_type == 'contact':
+        phone = message.contact.phone_number
+    elif message.content_type == 'text':
+        phone = message.text
     await state.update_data(
         {'phone': phone}
     )
@@ -98,7 +131,24 @@ async def us_fullname_state(message: types.Message, state=FSMContext):
         await state.update_data(
             {'age': age,
              'username': message.from_user.username,
-            }
+             }
+        )
+        await save_message_id(state, message)
+    reply = await message.answer("Farzandingizning yoshi👫 \n\nMisol uchun 14\n")
+    await save_message_id(state, reply)
+    await save_message_id(state, message)
+    await RegState.age.set()
+
+
+@dp.message_handler(state=RegState.age)
+async def us_fullname_state(message: types.Message, state=FSMContext):
+    try:
+        age = int(message.text)
+
+        await state.update_data(
+            {'age': age,
+             'username': message.from_user.username,
+             }
         )
         await save_message_id(state, message)
 
@@ -115,12 +165,13 @@ async def us_fullname_state(message: types.Message, state=FSMContext):
                 await dp.bot.delete_message(message.from_user.id, message_id)
             except Exception as e:
                 print(f"Xabarni o'chirishda xato: {e}")
-        
+
         await message.answer("Ro’yxatdan o’tganingiz uchun raxmat! 😊")
         await message.answer(f"Telefon raqam: {phone}\n\nIsm familiya: {full_name}\n\nYosh: {age}")
 
         await message.answer_photo(
-            photo="AgACAgIAAxkBAAIBaGYL81IeEHYod-0trHvlY0eeeV9JAAJF2zEbwp1gSF2lTOActrf1AQADAgADcwADNAQ",
+            # photo="AgACAgIAAxkBAAIBaGYL81IeEHYod-0trHvlY0eeeV9JAAJF2zEbwp1gSF2lTOActrf1AQADAgADcwADNAQ",
+            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT873pgw_FPhwhcCT2p11KJgy8DM0hVEtxDXZ-fqMAnOA&s",
             caption="Farzandingiz  qaysi yo’nalishda qobiliyati kuchli ekanligini bilishni xohlaysizmi?🤔\n\n",
             reply_markup=start_test_uz)
 
@@ -191,9 +242,10 @@ Natijalaringiz asosida quyidagi kurslar siz uchun eng mos keladi:\n\n"""
 
         # Natijalarni foydalanuvchiga yuborish
         await message.answer_photo(
-            photo="AgACAgIAAxkBAAIBamYL8-MkkRjuMJjOYn1GqWd141TfAAJG2zEbwp1gSIVdQ1pU3z7sAQADAgADcwADNAQ",
+            # photo="AgACAgIAAxkBAAIBamYL8-MkkRjuMJjOYn1GqWd141TfAAJG2zEbwp1gSIVdQ1pU3z7sAQADAgADcwADNAQ",
+            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT873pgw_FPhwhcCT2p11KJgy8DM0hVEtxDXZ-fqMAnOA&s",
             caption=results_message, reply_markup=application)
-        
+
         user_data = await state.get_data()
         phone = user_data.get('phone')
         full_name = user_data.get('full_name')
@@ -206,8 +258,7 @@ Natijalaringiz asosida quyidagi kurslar siz uchun eng mos keladi:\n\n"""
 
         user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\n\nSinov darsiga yozilmadi"
 
-        await on_startup_notify(dp, user)
-
+        await on_startup_notify(dp, user, id)
 
 
 @dp.callback_query_handler(text_contains='answer_', state=TestState.waiting_for_answer)
@@ -253,9 +304,9 @@ async def application_handler(call: types.CallbackQuery, state: FSMContext):
 
     await call.message.delete()
     await call.message.answer("Arizangiz qabul qilindi ✅ \n\nBiz tez orada sizga aloqaga chiqamiz📞",
-                            reply_markup=contact)
+                              reply_markup=contact)
     await state.finish()
-    await on_startup_notify(dp, user)
+    await on_startup_notify(dp, user, call.from_user.id)
 
 
 @dp.callback_query_handler(text='contact')
@@ -411,7 +462,7 @@ async def send_question_ru(message: types.Message, state: FSMContext, answers: l
         await message.answer_photo(
             photo="AgACAgIAAxkBAAIBamYL8-MkkRjuMJjOYn1GqWd141TfAAJG2zEbwp1gSIVdQ1pU3z7sAQADAgADcwADNAQ",
             caption=results_message, reply_markup=application_ru)
-        
+
         user_data = await state.get_data()
         phone = user_data.get('phone')
         full_name = user_data.get('full_name')
@@ -424,7 +475,9 @@ async def send_question_ru(message: types.Message, state: FSMContext, answers: l
 
         user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\n\nSinov darsiga yozilmadi"
 
-        await on_startup_notify(dp, user)
+        await on_startup_notify(dp, user, id)
+
+
 
 
 @dp.callback_query_handler(text_contains='answer_', state=TestStateRu.waiting_for_answer)
@@ -471,7 +524,7 @@ async def application_handler(call: types.CallbackQuery, state: FSMContext):
     await call.message.delete()
     await call.message.answer("Ваша заявка принята ✅ \n\nВ скором времени с вами свяжутся 📞", reply_markup=contact_ru)
     await state.finish()
-    await on_startup_notify(dp, user)
+    await on_startup_notify(dp, user, call.from_user.id)
 
 
 @dp.callback_query_handler(text='contact_ru')
@@ -497,4 +550,3 @@ if __name__ == "__main__":
         host='0.0.0.0',
         port=8080
     )
-

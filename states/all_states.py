@@ -5,12 +5,17 @@ class RegState(StatesGroup):
     phone = State()
     fullname = State()
     age = State()
+    address = State()
 
 
 class RegStateRu(StatesGroup):
     phone = State()
     fullname = State()
     age = State()
+
+
+class UserState(StatesGroup):
+    last_message_id = State()
 
 
 class TestState(StatesGroup):

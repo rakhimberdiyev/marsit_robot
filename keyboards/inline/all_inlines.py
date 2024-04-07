@@ -91,3 +91,32 @@ contact_ru = InlineKeyboardMarkup(
         ]
     ]
 )
+
+
+area_uz = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="Toshkent shahri", callback_data='shahar')
+        ],
+        [
+            InlineKeyboardButton(text="Toshkent viloyati", callback_data='viloyat')
+        ],
+        [
+            InlineKeyboardButton(text="Boshqa hudud", callback_data='boshqa')
+        ]
+    ]
+)
+
+area_ru = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="Город Ташкент", callback_data='shahar')
+        ],
+        [
+            InlineKeyboardButton(text="Ташкентская область", callback_data='viloyat')
+        ],
+        [
+            InlineKeyboardButton(text="Другая территория", callback_data='boshqa')
+        ]
+    ]
+)

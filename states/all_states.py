@@ -12,6 +12,7 @@ class RegStateRu(StatesGroup):
     phone = State()
     fullname = State()
     age = State()
+    address = State()
 
 
 class UserState(StatesGroup):

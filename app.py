@@ -11,7 +11,7 @@ from aiogram import Bot, Dispatcher, types
 
 from keyboards.default.all_defaults import phone_uz, phone_ru
 from keyboards.inline.all_inlines import start_test_ru, contact, application, start_test_uz, langs, application_ru, \
-    contact_ru, filials_ru, filials
+    contact_ru, filials_ru, filials, area_uz, area_ru
 from keyboards.tests import test_ru, test_uz
 from states.all_states import TestStateRu, RegStateRu, ApplicationState, TestState, RegState, ApplicationStateRu, \
     UserState
@@ -28,41 +28,11 @@ logging.basicConfig(level=logging.INFO)
 async def on_startup(dispatcher):
     await bot.set_webhook(WEBHOOK_URI)
     await set_default_commands(dispatcher)
-    await on_startup_notify(dispatcher, user=None, id=123456)
+    await on_startup_notify(dispatcher, user=None, id=123456, address=None)
 
 
 async def on_shutdown(_):
     await on_shutdown_notify(bot)
-
-@dp.message_handler(commands=['chatidshah'])
-async def get_chat_id(message: types.Message):
-    text = "This is a message to the topic chat!"
-    try:
-        await bot.send_message(chat_id="-1002088539701", text=text, parse_mode=None, message_thread_id=9)
-        await message.answer("salom chatid")
-    except Exception as e:
-        print(e)
-        
-
-@dp.message_handler(commands=['chatidvil'])
-async def get_chat_id(message: types.Message):
-    text = "This is a message to the topic chat!"
-    try:
-        await bot.send_message(chat_id="-1002088539701", text=text, parse_mode=None, message_thread_id=6)
-        await message.answer("salom chatid")
-    except Exception as e:
-        print(e)
-        
-        
-@dp.message_handler(commands=['chatidbosh'])
-async def get_chat_id(message: types.Message):
-    text = "This is a message to the topic chat!"
-    try:
-        await bot.send_message(chat_id="-1002088539701", text=text, parse_mode=None, message_thread_id=8)
-        await message.answer("salom chatid")
-    except Exception as e:
-        print(e)
-
 
     
 @dp.message_handler(CommandStart())
@@ -90,7 +60,7 @@ async def save_message_id(state: FSMContext, message: types.Message):
 async def uz_state_handler(call: types.CallbackQuery, state: FSMContext):
     await call.message.delete()
     reply = await call.message.answer("Testni boshlash uchun iltimos, telefon raqamingizni kiriting📱\n\n",
-                                      reply_markup=phone_uz)
+                                    reply_markup=phone_uz)
     await save_message_id(state, reply)
     await RegState.phone.set()
 
@@ -130,27 +100,32 @@ async def us_fullname_state(message: types.Message, state=FSMContext):
 
         await state.update_data(
             {'age': age,
-             'username': message.from_user.username,
-             }
+            'username': message.from_user.username,
+            }
         )
         await save_message_id(state, message)
-    reply = await message.answer("Farzandingizning yoshi👫 \n\nMisol uchun 14\n")
-    await save_message_id(state, reply)
-    await save_message_id(state, message)
-    await RegState.age.set()
+        reply = await message.answer("Qaysi hududda yashaysiz?", reply_markup=area_uz)
+        await save_message_id(state, reply)
+        await save_message_id(state, message)
+        await RegState.address.set()
+        
+    except Exception as e:
+        print(e)
+        reply = await message.answer("Itimos raqam kiriting:\n\nMisol uchun 14")
+        await save_message_id(state, reply)
+        await save_message_id(state, message)
+
+    
 
 
-@dp.message_handler(state=RegState.age)
-async def us_fullname_state(message: types.Message, state=FSMContext):
-    try:
-        age = int(message.text)
+@dp.callback_query_handler(state=RegState.address)
+async def us_fullname_state(call: types.CallbackQuery, state=FSMContext):
+        address = call.data
 
         await state.update_data(
-            {'age': age,
-             'username': message.from_user.username,
-             }
+            {'address': address}
         )
-        await save_message_id(state, message)
+        await save_message_id(state, call.message)
 
         data = await state.get_data()
         phone = data.get('phone')
@@ -162,24 +137,21 @@ async def us_fullname_state(message: types.Message, state=FSMContext):
         message_ids = data.get('message_ids', [])
         for message_id in message_ids:
             try:
-                await dp.bot.delete_message(message.from_user.id, message_id)
+                await dp.bot.delete_message(call.from_user.id, message_id)
             except Exception as e:
                 print(f"Xabarni o'chirishda xato: {e}")
 
-        await message.answer("Ro’yxatdan o’tganingiz uchun raxmat! 😊")
-        await message.answer(f"Telefon raqam: {phone}\n\nIsm familiya: {full_name}\n\nYosh: {age}")
+        await call.message.answer("Ro’yxatdan o’tganingiz uchun raxmat! 😊")
+        await call.message.answer(f"Telefon raqam: {phone}\n\nIsm familiya: {full_name}\n\nYosh: {age}")
 
-        await message.answer_photo(
-            # photo="AgACAgIAAxkBAAIBaGYL81IeEHYod-0trHvlY0eeeV9JAAJF2zEbwp1gSF2lTOActrf1AQADAgADcwADNAQ",
-            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT873pgw_FPhwhcCT2p11KJgy8DM0hVEtxDXZ-fqMAnOA&s",
+        await call.message.answer_photo(
+            photo="AgACAgIAAxkBAAIBaGYL81IeEHYod-0trHvlY0eeeV9JAAJF2zEbwp1gSF2lTOActrf1AQADAgADcwADNAQ",
+            # photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT873pgw_FPhwhcCT2p11KJgy8DM0hVEtxDXZ-fqMAnOA&s",
             caption="Farzandingiz  qaysi yo’nalishda qobiliyati kuchli ekanligini bilishni xohlaysizmi?🤔\n\n",
             reply_markup=start_test_uz)
 
 
-    except Exception as e:
-        print(e)
-        await message.answer("Itimos raqam kiriting:\n\nMisol uchun 14")
-
+    
 
 @dp.callback_query_handler(text='start_test_uz', state=None)
 async def start_test_uz_handler(call: types.CallbackQuery, state: FSMContext):
@@ -242,8 +214,8 @@ Natijalaringiz asosida quyidagi kurslar siz uchun eng mos keladi:\n\n"""
 
         # Natijalarni foydalanuvchiga yuborish
         await message.answer_photo(
-            # photo="AgACAgIAAxkBAAIBamYL8-MkkRjuMJjOYn1GqWd141TfAAJG2zEbwp1gSIVdQ1pU3z7sAQADAgADcwADNAQ",
-            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT873pgw_FPhwhcCT2p11KJgy8DM0hVEtxDXZ-fqMAnOA&s",
+            photo="AgACAgIAAxkBAAIBamYL8-MkkRjuMJjOYn1GqWd141TfAAJG2zEbwp1gSIVdQ1pU3z7sAQADAgADcwADNAQ",
+            # photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT873pgw_FPhwhcCT2p11KJgy8DM0hVEtxDXZ-fqMAnOA&s",
             caption=results_message, reply_markup=application)
 
         user_data = await state.get_data()
@@ -253,14 +225,15 @@ Natijalaringiz asosida quyidagi kurslar siz uchun eng mos keladi:\n\n"""
         result = user_data.get('result')
         username = user_data.get('username')
         date = datetime.datetime.now()
+        address = user_data.get('address')
 
         await state.reset_state(with_data=False)
 
-        user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\n\nSinov darsiga yozilmadi"
+        user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\nHudud: {address}\nTil: uz\n\nSinov darsiga yozilmadi"
 
-        await on_startup_notify(dp, user, id)
-
-
+        await on_startup_notify(dp, user, id, address)
+        
+        
 @dp.callback_query_handler(text_contains='answer_', state=TestState.waiting_for_answer)
 async def handle_answer(call: types.CallbackQuery, state: FSMContext):
     answer_data = call.data.split('_')
@@ -299,14 +272,15 @@ async def application_handler(call: types.CallbackQuery, state: FSMContext):
     result = user_data.get('result')
     username = call.from_user.username
     date = datetime.datetime.now()
+    address = user_data.get('address')
 
-    user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nFilial: {filial}\nDate: {date}"
+    user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nFilial: {filial}\nDate: {date}\nHudud: {address}\nTil: uz"
 
     await call.message.delete()
     await call.message.answer("Arizangiz qabul qilindi ✅ \n\nBiz tez orada sizga aloqaga chiqamiz📞",
-                              reply_markup=contact)
+                            reply_markup=contact)
     await state.finish()
-    await on_startup_notify(dp, user, call.from_user.id)
+    await on_startup_notify(dp, user, call.from_user.id, address)
 
 
 @dp.callback_query_handler(text='contact')
@@ -338,9 +312,12 @@ async def uz_state_handler(call: types.CallbackQuery, state: FSMContext):
     await RegStateRu.phone.set()
 
 
-@dp.message_handler(content_types=types.ContentType.CONTACT, state=RegStateRu.phone)
-async def uz_phone_state(message: types.Message, state=FSMContext):
-    phone = message.contact.phone_number
+@dp.message_handler(content_types=['contact', 'text'], state=RegStateRu.phone)
+async def ru_phone_state(message: types.Message, state=FSMContext):
+    if message.content_type == 'contact':
+        phone = message.contact.phone_number
+    elif message.content_type == 'text':
+        phone = message.text
 
     await state.update_data(
         {'phone': phone}
@@ -369,10 +346,31 @@ async def us_fullname_state(message: types.Message, state=FSMContext):
     try:
         age = int(message.text)
 
-        data = await state.update_data(
-            {'age': age, 'username': message.from_user.username}
+        await state.update_data(
+            {'age': age,
+            'username': message.from_user.username,
+            }
         )
         await save_message_id(state, message)
+        reply = await message.answer("В каком районе вы живете?", reply_markup=area_ru)
+        await save_message_id(state, reply)
+        await save_message_id(state, message)
+        await RegStateRu.address.set()
+        
+    except Exception as e:
+        print(e)
+        reply = await message.answer("Пожалуйста отправьте возраст👨‍👩‍👦:\n\nПример 14")
+        await save_message_id(state, reply)
+        await save_message_id(state, message)
+
+
+@dp.callback_query_handler(state=RegStateRu.address)
+async def us_fullname_state(call: types.CallbackQuery, state=FSMContext):
+        address = call.data
+        await state.update_data(
+            {'address': address}
+        )
+        await save_message_id(state, call.message)
 
         data = await state.get_data()
         phone = data.get('phone')
@@ -384,23 +382,21 @@ async def us_fullname_state(message: types.Message, state=FSMContext):
         message_ids = data.get('message_ids', [])
         for message_id in message_ids:
             try:
-                await dp.bot.delete_message(message.from_user.id, message_id)
+                await dp.bot.delete_message(call.from_user.id, message_id)
             except Exception as e:
                 print(f"Xabarni o'chirishda xato: {e}")
-        await message.answer("Спасибо за регистрацию! 😊")
-        await message.answer(f"Номер телефона: {phone}\n\nИмя и Фамилия: {full_name}\n\nВозраст: {age}")
 
-        await message.answer_photo(
+        await call.message.answer("Спасибо за регистрацию! 😊")
+        await call.message.answer(f"Номер телефона: {phone}\n\nИмя и Фамилия: {full_name}\n\nВозраст: {age}\n\n")
+
+        await call.message.answer_photo(
             photo="AgACAgIAAxkBAAIBaGYL81IeEHYod-0trHvlY0eeeV9JAAJF2zEbwp1gSF2lTOActrf1AQADAgADcwADNAQ",
+            # photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT873pgw_FPhwhcCT2p11KJgy8DM0hVEtxDXZ-fqMAnOA&s",
             caption="Хотите узнать в какой сфере IT у вашего ребенка есть предрасположенности?🤔\n\n",
             reply_markup=start_test_ru)
 
-
-    except Exception as e:
-        print(e)
-        await message.answer("Пожалуйста отправьте возраст👨‍👩‍👦:\n\nПример 14")
-
-
+    
+    
 @dp.callback_query_handler(text='start_test_ru', state=None)
 async def start_test_ru_handler(call: types.CallbackQuery, state: FSMContext):
     await state.set_state(TestStateRu.waiting_for_answer)
@@ -461,6 +457,7 @@ async def send_question_ru(message: types.Message, state: FSMContext, answers: l
         # Natijalarni foydalanuvchiga yuborish
         await message.answer_photo(
             photo="AgACAgIAAxkBAAIBamYL8-MkkRjuMJjOYn1GqWd141TfAAJG2zEbwp1gSIVdQ1pU3z7sAQADAgADcwADNAQ",
+            # photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT873pgw_FPhwhcCT2p11KJgy8DM0hVEtxDXZ-fqMAnOA&s",
             caption=results_message, reply_markup=application_ru)
 
         user_data = await state.get_data()
@@ -470,16 +467,15 @@ async def send_question_ru(message: types.Message, state: FSMContext, answers: l
         result = user_data.get('result')
         username = user_data.get('username')
         date = datetime.datetime.now()
+        address = user_data.get('address')
 
         await state.reset_state(with_data=False)
 
-        user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\n\nSinov darsiga yozilmadi"
+        user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\nHudud: {address}\nTil: ru\n\nSinov darsiga yozilmadi"
 
-        await on_startup_notify(dp, user, id)
-
-
-
-
+        await on_startup_notify(dp, user, id, address)
+        
+        
 @dp.callback_query_handler(text_contains='answer_', state=TestStateRu.waiting_for_answer)
 async def handle_answer(call: types.CallbackQuery, state: FSMContext):
     answer_data = call.data.split('_')
@@ -518,13 +514,14 @@ async def application_handler(call: types.CallbackQuery, state: FSMContext):
     result = user_data.get('result')
     username = call.from_user.username
     date = datetime.datetime.now()
+    address = user_data.get('address')
 
-    user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nFilial: {filial}\nDate: {date}"
+    user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nFilial: {filial}\nDate: {date}\nHudud: {address}\nTil: uz"
 
     await call.message.delete()
     await call.message.answer("Ваша заявка принята ✅ \n\nВ скором времени с вами свяжутся 📞", reply_markup=contact_ru)
     await state.finish()
-    await on_startup_notify(dp, user, call.from_user.id)
+    await on_startup_notify(dp, user, call.from_user.id, address)
 
 
 @dp.callback_query_handler(text='contact_ru')

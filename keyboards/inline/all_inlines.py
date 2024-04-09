@@ -79,7 +79,7 @@ filials_ru = InlineKeyboardMarkup(
 contact = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="Adminga bog'lanish", callback_data='contact')
+            InlineKeyboardButton(text="Bog'lanish", callback_data='contact')
         ]
     ]
 )

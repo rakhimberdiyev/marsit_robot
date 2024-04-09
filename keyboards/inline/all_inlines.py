@@ -116,7 +116,7 @@ area_ru = InlineKeyboardMarkup(
             InlineKeyboardButton(text="Ташкентская область", callback_data='viloyat')
         ],
         [
-            InlineKeyboardButton(text="Другая территория", callback_data='boshqa')
+            InlineKeyboardButton(text="Другой регион", callback_data='boshqa')
         ]
     ]
 )

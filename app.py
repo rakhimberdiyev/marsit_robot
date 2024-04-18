@@ -28,7 +28,7 @@ logging.basicConfig(level=logging.INFO)
 async def on_startup(dispatcher):
     await bot.set_webhook(WEBHOOK_URI)
     await set_default_commands(dispatcher)
-    await on_startup_notify(dispatcher, user=None, id=123456, address=None)
+    await on_startup_notify(dispatcher, user=None, id=123456, address=None, language=None)
 
 
 async def on_shutdown(_):
@@ -145,8 +145,8 @@ async def us_fullname_state(call: types.CallbackQuery, state=FSMContext):
         await call.message.answer(f"Telefon raqam: {phone}\n\nIsm familiya: {full_name}\n\nYosh: {age}")
 
         await call.message.answer_photo(
-            photo="AgACAgIAAxkBAAIBaGYL81IeEHYod-0trHvlY0eeeV9JAAJF2zEbwp1gSF2lTOActrf1AQADAgADcwADNAQ",
-            # photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT873pgw_FPhwhcCT2p11KJgy8DM0hVEtxDXZ-fqMAnOA&s",
+            # photo="AgACAgIAAxkBAAIBaGYL81IeEHYod-0trHvlY0eeeV9JAAJF2zEbwp1gSF2lTOActrf1AQADAgADcwADNAQ",
+            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT873pgw_FPhwhcCT2p11KJgy8DM0hVEtxDXZ-fqMAnOA&s",
             caption="Farzandingiz  qaysi yo’nalishda qobiliyati kuchli ekanligini bilishni xohlaysizmi?🤔\n\n",
             reply_markup=start_test_uz)
 
@@ -214,9 +214,10 @@ Natijalaringiz asosida quyidagi kurslar siz uchun eng mos keladi:\n\n"""
 
         # Natijalarni foydalanuvchiga yuborish
         await message.answer_photo(
-            photo="AgACAgIAAxkBAAIBamYL8-MkkRjuMJjOYn1GqWd141TfAAJG2zEbwp1gSIVdQ1pU3z7sAQADAgADcwADNAQ",
+            # photo="AgACAgIAAxkBAAIBamYL8-MkkRjuMJjOYn1GqWd141TfAAJG2zEbwp1gSIVdQ1pU3z7sAQADAgADcwADNAQ",
             # photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT873pgw_FPhwhcCT2p11KJgy8DM0hVEtxDXZ-fqMAnOA&s",
-            caption=results_message, reply_markup=application)
+            photo = "AgACAgIAAxkBAAIj1WYguB910TqKb-RJJlEHvojqLumgAAKa2DEbwigJSYFqDT2-has0AQADAgADcwADNAQ",
+            caption=results_message)
 
         user_data = await state.get_data()
         phone = user_data.get('phone')
@@ -227,11 +228,10 @@ Natijalaringiz asosida quyidagi kurslar siz uchun eng mos keladi:\n\n"""
         date = datetime.datetime.now()
         address = user_data.get('address')
 
-        await state.reset_state(with_data=False)
 
         user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\nHudud: {address}\nTil: uz\n\nSinov darsiga yozilmadi"
 
-        await on_startup_notify(dp, user, id, address)
+        await on_startup_notify(dp, user, id, address, language='uz')
         
         
 @dp.callback_query_handler(text_contains='answer_', state=TestState.waiting_for_answer)
@@ -254,6 +254,9 @@ async def handle_answer(call: types.CallbackQuery, state: FSMContext):
     await send_question(call.message, state, answers, id=call.from_user.id)
 
     # print(answers[-1])
+
+
+
 
 
 @dp.callback_query_handler(text='application', state=None)
@@ -280,7 +283,7 @@ async def application_handler(call: types.CallbackQuery, state: FSMContext):
     await call.message.answer("Arizangiz qabul qilindi ✅ \n\nBiz tez orada sizga aloqaga chiqamiz📞",
                             reply_markup=contact)
     await state.finish()
-    await on_startup_notify(dp, user, call.from_user.id, address)
+    await on_startup_notify(dp, user, call.from_user.id, address, language=None)
 
 
 @dp.callback_query_handler(text='contact')
@@ -456,9 +459,10 @@ async def send_question_ru(message: types.Message, state: FSMContext, answers: l
 
         # Natijalarni foydalanuvchiga yuborish
         await message.answer_photo(
-            photo="AgACAgIAAxkBAAIBamYL8-MkkRjuMJjOYn1GqWd141TfAAJG2zEbwp1gSIVdQ1pU3z7sAQADAgADcwADNAQ",
+            # photo="AgACAgIAAxkBAAIBamYL8-MkkRjuMJjOYn1GqWd141TfAAJG2zEbwp1gSIVdQ1pU3z7sAQADAgADcwADNAQ",
             # photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT873pgw_FPhwhcCT2p11KJgy8DM0hVEtxDXZ-fqMAnOA&s",
-            caption=results_message, reply_markup=application_ru)
+            photo="AgACAgIAAxkBAAIj1WYguB910TqKb-RJJlEHvojqLumgAAKa2DEbwigJSYFqDT2-has0AQADAgADcwADNAQ",
+            caption=results_message)
 
         user_data = await state.get_data()
         phone = user_data.get('phone')
@@ -473,7 +477,7 @@ async def send_question_ru(message: types.Message, state: FSMContext, answers: l
 
         user = f"Phone: {phone}\nFull name: {full_name}\nUsername: @{username}\nAge: {age}\nResult: {result}\nDate: {date}\nHudud: {address}\nTil: ru\n\nSinov darsiga yozilmadi"
 
-        await on_startup_notify(dp, user, id, address)
+        await on_startup_notify(dp, user, id, address, language='ru')
         
         
 @dp.callback_query_handler(text_contains='answer_', state=TestStateRu.waiting_for_answer)
@@ -521,7 +525,7 @@ async def application_handler(call: types.CallbackQuery, state: FSMContext):
     await call.message.delete()
     await call.message.answer("Ваша заявка принята ✅ \n\nВ скором времени с вами свяжутся 📞", reply_markup=contact_ru)
     await state.finish()
-    await on_startup_notify(dp, user, call.from_user.id, address)
+    await on_startup_notify(dp, user, call.from_user.id, address, language=None)
 
 
 @dp.callback_query_handler(text='contact_ru')
@@ -531,6 +535,15 @@ async def contact_state_handler(call: types.CallbackQuery):
 👩‍💻Чат с Администратором @mars_edu_admin
 
 🌐Наш канал: @mars_it_school""")
+    
+    
+@dp.message_handler(content_types=['video', 'photo'])
+async def send_file_id(message: types.Message):
+    print(message)
+    if message.content_type == 'video':
+        await message.answer_video(video=message.video.file_id)
+    elif message.content_type == 'photo':
+        await message.answer_photo(photo=message.photo[0]['file_id'])
 
 
 if __name__ == "__main__":

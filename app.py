@@ -537,13 +537,13 @@ async def contact_state_handler(call: types.CallbackQuery):
 🌐Наш канал: @mars_it_school""")
     
     
-@dp.message_handler(content_types=['video', 'photo'])
-async def send_file_id(message: types.Message):
-    print(message)
-    if message.content_type == 'video':
-        await message.answer_video(video=message.video.file_id)
-    elif message.content_type == 'photo':
-        await message.answer_photo(photo=message.photo[0]['file_id'])
+# @dp.message_handler(content_types=['video', 'photo'])
+# async def send_file_id(message: types.Message):
+#     print(message)
+#     if message.content_type == 'video':
+#         await message.answer_video(video=message.video.file_id)
+#     elif message.content_type == 'photo':
+#         await message.answer_photo(photo=message.photo[0]['file_id'])
 
 
 if __name__ == "__main__":

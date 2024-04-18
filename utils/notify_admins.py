@@ -33,7 +33,7 @@ async def on_startup_notify(dp: Dispatcher, user: str, id, address, language):
                             message_ids[id] = msg.message_id
                             message_num['id_b'] += 1
                         
-                        await asyncio.sleep(60)
+                        await asyncio.sleep(30)
                         if language == 'uz':
                             
                             video = "BAACAgIAAxkBAAIj2WYguN4b7rToZY1zrMJW5JoohcAbAAKQSAACwrPwSLn2sm6Y3jLENAQ"

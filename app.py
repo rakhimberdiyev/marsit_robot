@@ -145,8 +145,8 @@ async def us_fullname_state(call: types.CallbackQuery, state=FSMContext):
         await call.message.answer(f"Telefon raqam: {phone}\n\nIsm familiya: {full_name}\n\nYosh: {age}")
 
         await call.message.answer_photo(
-            # photo="AgACAgIAAxkBAAIBaGYL81IeEHYod-0trHvlY0eeeV9JAAJF2zEbwp1gSF2lTOActrf1AQADAgADcwADNAQ",
-            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT873pgw_FPhwhcCT2p11KJgy8DM0hVEtxDXZ-fqMAnOA&s",
+            photo="AgACAgIAAxkBAAIBaGYL81IeEHYod-0trHvlY0eeeV9JAAJF2zEbwp1gSF2lTOActrf1AQADAgADcwADNAQ",
+            # photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT873pgw_FPhwhcCT2p11KJgy8DM0hVEtxDXZ-fqMAnOA&s",
             caption="Farzandingiz  qaysi yo’nalishda qobiliyati kuchli ekanligini bilishni xohlaysizmi?🤔\n\n",
             reply_markup=start_test_uz)
 

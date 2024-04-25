@@ -24,12 +24,12 @@ async def on_startup_notify(dp: Dispatcher, user: str, id, address, language):
                             
                         elif address == 'viloyat':
                             msg = await dp.bot.send_message(chat_id="-1002088539701",
-                                                            text=f"Id: {message_num['id_v']}\n{user}", parse_mode=None, message_thread_id=6)
+                                                            text=f"Id: {message_num['id_v']}\n{user}", parse_mode=None, message_thread_id=272)
                             message_ids[id] = msg.message_id
                             message_num['id_v'] += 1
                         elif address == 'boshqa':
                             msg = await dp.bot.send_message(chat_id="-1002088539701",
-                                                            text=f"Id: {message_num['id_b']}\n{user}", parse_mode=None, message_thread_id=8)
+                                                            text=f"Id: {message_num['id_b']}\n{user}", parse_mode=None, message_thread_id=273)
                             message_ids[id] = msg.message_id
                             message_num['id_b'] += 1
                         
